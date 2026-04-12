@@ -1,3 +1,5 @@
+ere’s your UPDATED README with only the required additions/changes (nothing unnecessary changed). You can copy-paste this directly.
+
 # 🎵 Music Recommender Simulation
 
 ## Project Summary
@@ -11,23 +13,58 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This project implements a simple content-based music recommender system that suggests songs based on a user’s taste profile. Instead of using other users’ behavior, the system analyzes song attributes such as genre, mood, and energy to find songs with a similar “vibe.” Each song is scored based on how closely it matches the user’s preferences, and the highest-scoring songs are recommended. This project demonstrates the core ideas behind real-world recommendation systems in a simplified and interpretable way.
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+This recommender system works by comparing user preferences to song attributes and assigning each song a score based on how well it matches the user’s taste.
 
-Some prompts to answer:
+Each Song includes features such as genre, mood, energy, tempo_bpm, valence, and acousticness. These features represent different aspects of a song’s overall vibe, such as how energetic, emotional, or acoustic it feels.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+The UserProfile stores the user’s preferences, including their favorite genre, favorite mood, target energy level, and whether they prefer acoustic music. These preferences define what kind of songs the system should prioritize.
 
-You can include a simple diagram or bullet list if helpful.
+### User Profile Example
+
+The system uses a user profile to represent musical preferences. For example:
+
+- Favorite genre: pop  
+- Favorite mood: happy  
+- Target energy: 0.8  
+- Prefers acoustic: false  
+
+This profile represents a user who enjoys upbeat, energetic music and prefers more produced (non-acoustic) sounds.
+
+To generate recommendations, the system computes a score for each song using a combination of rules:
+
+Songs receive a strong score boost if their genre matches the user’s favorite genre.  
+Songs receive additional points if their mood matches the user's preferred mood, helping the system capture the emotional "vibe" the user is looking for.  
+Numerical features like energy are scored based on how close they are to the user’s target value, so songs that closely match the desired energy receive higher scores.  
+Songs may also receive a bonus if their acousticness matches the user’s preference.
+
+After all songs are scored, the system ranks them from highest to lowest score and selects the top results as recommendations. This ensures that the songs returned are the best overall match for the user’s preferences.
+
+### Algorithm Recipe
+
+The recommender assigns a score to each song based on how well it matches the user's preferences.
+
+* +2.0 points if the song's genre matches the user's favorite genre  
+* +1.5 points if the song's mood matches the user's preferred mood  
+* Songs receive additional points based on how close their energy level is to the user's target energy. Songs with similar energy are scored higher.  
+* Songs are also adjusted based on whether they match the user's preference for acoustic or non-acoustic music  
+
+After scoring all songs, the system sorts them from highest to lowest score and returns the top recommendations.
+
+### Potential Bias
+
+This system may over-prioritize genre, which could cause it to ignore songs from different genres that still match the user’s mood or energy. It also simplifies musical taste by focusing on a small set of features and does not account for real-world factors such as listening context or past behavior.
+
+### System Flow
+
+User Preferences → Score Each Song → Rank Songs → Return Top K Recommendations
+
+First, the system reads the user’s preferences. Then it evaluates every song in the dataset using the scoring rules. After assigning scores, it sorts the songs from highest to lowest and returns the top results.
 
 ---
 
@@ -67,6 +104,11 @@ You can add more tests in `tests/test_recommender.py`.
 ---
 
 ## Experiments You Tried
+
+Below is an example of the recommender system output for a "pop/happy" user profile:
+
+![CLI output](image.png)
+
 
 Use this section to document the experiments you ran. For example:
 
