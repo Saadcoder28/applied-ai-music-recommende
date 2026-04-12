@@ -74,9 +74,6 @@ class Recommender:
 
         return ", ".join(reasons) if reasons else "general match"
 
-
-# ---------------- FUNCTIONAL VERSION ---------------- #
-
 def load_songs(csv_path: str) -> List[Dict]:
     """Load songs from a CSV file into a list of dictionaries."""
     print(f"Loading songs from {csv_path}...")
