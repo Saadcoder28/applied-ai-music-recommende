@@ -130,6 +130,17 @@ SS of profiles
 ![alt text](image-2.png)
 
 
+### Comparison of Results
+
+The High-Energy Pop profile recommended songs like "Sunrise City" and "Gym Hero", which have high energy and match the pop genre. This shows that the system correctly prioritizes both genre and energy for upbeat music.
+
+The Chill Lofi profile produced very different results, with songs like "Library Rain" and "Midnight Coding" appearing at the top. These songs have lower energy and higher acousticness, showing that the system adapts well to relaxed and acoustic preferences.
+
+The Intense Rock profile strongly favored "Storm Runner", which matches both the rock genre and high energy level. Compared to the pop profile, the recommendations shifted toward more intense and aggressive songs.
+
+Overall, the system responds well to different user preferences, but some songs like "Gym Hero" still appear across profiles due to strong energy similarity. This shows that energy has a strong influence on the scoring.
+
+
 ### Weight Shift Experiment
 
 I modified the scoring system by reducing the importance of genre and increasing the importance of energy.
