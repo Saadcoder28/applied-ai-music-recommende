@@ -1,6 +1,25 @@
-ere’s your UPDATED README with only the required additions/changes (nothing unnecessary changed). You can copy-paste this directly.
-
 # 🎵 Music Recommender Simulation
+
+## Base Project
+
+This is **Project 4: Applied AI System**, built by extending my earlier **Project 3: Music Recommender Simulation** (the original CLI-based content scoring recommender in this same repo).
+
+**Original scope (Project 3):**
+- A CLI tool that loads songs from `data/songs.csv`
+- A scoring rule that ranks songs against a `UserProfile` (genre, mood, target energy, acoustic preference)
+- A short text "explanation" listing which rules contributed to each score
+- No retrieval, no external knowledge, no validation layer
+
+**What Project 4 adds on top of that base:**
+1. A local **knowledge base** (`knowledge/music_knowledge.txt`)
+2. A **RAG retriever** (`src/rag.py`) using keyword overlap
+3. An **AI explanation generator** (`src/ai_assistant.py`) that fuses the score + reasons + retrieved context
+4. A **guardrail validator** (`src/guardrails.py`) that flags generic explanations
+5. An **evaluation harness** (`src/evaluate.py`) that reports `X/Y passed` across multiple profiles
+
+The original `recommender.py` and CSV format are unchanged — the AI layer wraps them.
+
+---
 
 ## Project Summary
 
@@ -93,11 +112,19 @@ First, the system reads the user’s preferences. Then it evaluates every song i
 pip install -r requirements.txt
 ```
 
-3. Run the app:
+3. Run the recommender (with RAG explanations):
 
 ```bash
-python -m src.main
+python src/main.py
 ```
+
+4. Run the evaluation script (3 profiles + guardrail report):
+
+```bash
+python src/evaluate.py
+```
+
+> Note: run from the project root so the relative paths `data/songs.csv` and `knowledge/music_knowledge.txt` resolve.
 
 ### Running Tests
 
@@ -232,6 +259,27 @@ If not, a warning is added. This prevents misleading or generic explanations.
 
 The guardrail logic lives in `src/guardrails.py` and is invoked from `src/ai_assistant.py` after every explanation is generated. The evaluation script in `src/evaluate.py` reports how many explanations pass for a given run.
 
+### How the guardrail behaves
+
+**Pass case** (explanation mentions real song features — `genre`, `mood`, or `energy`):
+
+```
+[PASS] Library Rain (score 6.26)
+   This song matches your preferences (genre match (+2.0), mood match (+1.5),
+   energy similarity (+1.90), acoustic match (+0.86)). Context: Chill and lofi
+   songs are better for studying or relaxing because they have lower energy
+   and softer sounds.
+```
+
+**Fail case** (if a future change produced an explanation like `"Recommended for you."`):
+
+```
+Recommended for you. [WARNING] Explanation may be too generic — does not
+reference genre, mood, or energy.
+```
+
+The validator is a single function — `validate_explanation()` in `src/guardrails.py` — that returns `False` when none of the required terms appear, triggering the warning append in `ai_assistant.py`. On the current 3-profile evaluation, the run reports `Guardrail results: 9/9 passed`.
+
 ---
 
 ## Reflection
@@ -246,9 +294,27 @@ If extended further, I would improve the system by increasing dataset size, addi
 
 ### Design Reflection
 
-* AI helped with structure and speed, especially when scaffolding the RAG retriever and guardrail layer.
-* AI sometimes gave incorrect imports or logic that did not match the existing module layout.
-* Human verification was required to ensure the extension did not break the original recommender, scoring, or CSV loading code.
+**How I used AI during development:**
+- Prompting the assistant to scaffold the RAG retriever, guardrail validator, and evaluation script as separate modules
+- Debugging by pasting tracebacks back into the assistant
+- Discussing design choices like *whether to put guardrails inside `ai_assistant.py` or as a separate post-processing step*
+
+**One concrete *helpful* AI suggestion:**
+The assistant proposed building the RAG `retrieve()` function around plain set-based keyword overlap rather than reaching for a vector library. That kept the project zero-dependency, matched the assignment's "no external libraries" rule, and is easy to inspect when debugging odd retrieval results.
+
+**One concrete *flawed* AI suggestion:**
+An early draft used `from src.recommender import ...` and recommended `python -m src.main`, but the original Project 3 layout has no `src/__init__.py` — so that form raised `ModuleNotFoundError`. I had to verify imports manually and switch to flat `from recommender import ...` plus `python src/main.py`. This was a good reminder that AI-suggested imports must be checked against the actual package structure.
+
+**System limitations:**
+- Tiny catalog (18 songs) — recommendations saturate quickly
+- Keyword-overlap retrieval is shallow; it can miss semantically related chunks that share no exact words
+- The guardrail only checks for keyword presence, not factual correctness of the explanation
+
+**Future improvements:**
+- Larger song catalog and richer features (lyrics, embeddings)
+- Replace keyword overlap with sentence embeddings for retrieval
+- Stronger guardrails: cross-check that the cited features actually appear in the song's row
+- Personalization that adapts weights based on user feedback over time
 
 See also `model_card.md`:
 
