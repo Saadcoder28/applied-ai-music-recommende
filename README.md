@@ -165,16 +165,117 @@ You will go deeper on this in your model card.
 
 ---
 
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    A[User Profile Input] --> B[Recommender System]
+    B --> C[Score Songs]
+    C --> D[Top K Songs]
+    D --> E[RAG Retriever]
+    E --> F[Knowledge Base]
+    F --> E
+    E --> G[AI Explanation Generator]
+    G --> H[Guardrail Validator]
+    H --> I[Final Output to User]
+```
+
+---
+
+## AI Extension (RAG-Based Recommender)
+
+This project was extended with a Retrieval-Augmented Generation (RAG) system that enhances recommendation explanations.
+
+The system now:
+
+* Retrieves relevant music knowledge from a local knowledge base
+* Combines that information with scoring results
+* Generates more informative explanations
+* Uses guardrails to ensure explanations reference actual song features
+
+Example output:
+
+* Song name
+* Score
+* Explanation + retrieved context
+
+Run the extended pipeline with:
+
+```bash
+python src/main.py
+python src/evaluate.py
+```
+
+---
+
+## Sample Output
+
+```
+=== High-Energy Pop Profile ===
+
+Sunrise City - Score: 6.16
+Explanation: This song matches your preferences (genre match (+2.0), mood match (+1.5), energy similarity (+1.84), acoustic match (+0.82)). Context: High-energy songs are often good for workouts or parties because they have strong rhythm and fast tempo. Rock and intense songs usually feel powerful due to high energy and aggressive instruments.
+
+Gym Hero - Score: 4.89
+Explanation: This song matches your preferences (genre match (+2.0), energy similarity (+1.94), acoustic match (+0.95)). Context: Rock and intense songs usually feel powerful due to high energy and aggressive instruments. High-energy songs are often good for workouts or parties because they have strong rhythm and fast tempo.
+```
+
+The evaluation script reports guardrail pass rates across the three profiles, e.g. `Guardrail results: 9/9 passed`.
+
+---
+
+## Reliability / Guardrails
+
+The system includes a validation step that checks whether explanations mention real song features like genre, mood, or energy.
+
+If not, a warning is added. This prevents misleading or generic explanations.
+
+The guardrail logic lives in `src/guardrails.py` and is invoked from `src/ai_assistant.py` after every explanation is generated. The evaluation script in `src/evaluate.py` reports how many explanations pass for a given run.
+
+---
+
 ## Reflection
 
-Read and complete `model_card.md`:
+This project showed how even simple recommendation systems can feel intelligent when they combine data with structured reasoning.
+
+Using AI tools helped speed up development, especially when generating boilerplate code and structuring new features like RAG. However, some AI suggestions needed to be verified manually, especially around logic correctness and imports.
+
+One interesting insight was how small changes in scoring weights significantly affected recommendations. It also became clear how bias can easily emerge from limited datasets or overly strong features like genre.
+
+If extended further, I would improve the system by increasing dataset size, adding personalization over time, and using more advanced similarity methods.
+
+### Design Reflection
+
+* AI helped with structure and speed, especially when scaffolding the RAG retriever and guardrail layer.
+* AI sometimes gave incorrect imports or logic that did not match the existing module layout.
+* Human verification was required to ensure the extension did not break the original recommender, scoring, or CSV loading code.
+
+See also `model_card.md`:
 
 [**Model Card**](model_card.md)
 
-Write 1 to 2 paragraphs here about what you learned:
 
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
+---
 
+## 🧪 Experiments & Results
+
+The following terminal screenshots show the recommender system running across three different user profiles, plus the evaluation script with guardrail results.
+
+### High-Energy Pop Profile
+![High Energy](image-1.png)
+
+### Chill Lofi Profile
+![Chill Lofi](image-2.png)
+
+### Intense Rock + Guardrails
+![Rock + Evaluation](image-3.png)
+
+### Observations
+
+- High-energy profiles return energetic songs (e.g. *Sunrise City*, *Gym Hero*, *Festival Lights*).
+- Chill profiles return low-energy acoustic songs (e.g. *Library Rain*, *Midnight Coding*, *Deep Focus Waves*).
+- The Rock profile prioritizes intense songs (e.g. *Storm Runner*, *Trap Thunder*).
+- Some songs repeat across profiles due to strong energy weighting in the scoring rule.
+- Guardrails passed successfully — every generated explanation referenced genre, mood, or energy (`9/9 passed`).
 
 ---

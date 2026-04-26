@@ -1,12 +1,18 @@
 """
 Command line runner for the Music Recommender Simulation.
+
+Now extended with a RAG-based AI explanation system and
+guardrail validation on top of the existing recommender.
 """
 
 from recommender import load_songs, recommend_songs
+from rag import load_knowledge
+from ai_assistant import generate_explanation
 
 
 def main() -> None:
-    songs = load_songs("data/songs.csv") 
+    songs = load_songs("data/songs.csv")
+    knowledge = load_knowledge("knowledge/music_knowledge.txt")
 
     # Multiple profiles for evaluation
     profiles = [
@@ -36,15 +42,20 @@ def main() -> None:
         })
     ]
 
-    # LOOP through profiles ✅
+    # LOOP through profiles
     for name, user_prefs in profiles:
         print(f"\n=== {name} Profile ===\n")
 
         recommendations = recommend_songs(user_prefs, songs, k=5)
 
-        for song, score, explanation in recommendations:
+        for song, score, base_explanation in recommendations:
+            reasons = base_explanation.split(", ") if base_explanation else []
+            ai_explanation = generate_explanation(
+                user_prefs, song, score, reasons, knowledge
+            )
+
             print(f"{song['title']} - Score: {score:.2f}")
-            print(f"Because: {explanation}")
+            print(f"Explanation: {ai_explanation}")
             print()
 
 
