@@ -1,5 +1,11 @@
 # 🎵 Music Recommender Simulation
 
+## 📹 Video Walkthrough
+
+[Watch the video walkthrough on Loom](https://www.loom.com/share/9e5c27c42d3b41e1b8889d3e377083d6)
+
+---
+
 ## Base Project
 
 This is **Project 4: Applied AI System**, built by extending my earlier **Project 3: Music Recommender Simulation** (the original CLI-based content scoring recommender in this same repo).
